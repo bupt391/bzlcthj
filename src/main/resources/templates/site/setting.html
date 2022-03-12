@@ -27,10 +27,12 @@
 							<div class="custom-file">
 								<input type="hidden" name="token" th:value="${uploadToken}" >
 								<input type="hidden" name="key" th:value="${fileName}" >
-								<input type="file" class="custom-file-input"
+								<input type="file" class="|custom-file-input ${error!=null?'is-invalid':''}|"
 									   id="head-image" name="file" lang="es" required="">
 								<label class="custom-file-label" for="head-image" data-browse="文件">选择一张图片</label>
-								<div class="invalid-feedback"></div>
+								<div class="invalid-feedback" th:text="${error}">
+									该账号不存在!
+								</div>
 							</div>
 						</div>
 					</div>

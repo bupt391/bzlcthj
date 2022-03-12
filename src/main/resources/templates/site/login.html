@@ -55,7 +55,7 @@
 						<div class="col-sm-2"></div>
 						<div class="col-sm-10">
 							<input type="checkbox" id="rememberMe" name="rememberMe"
-								   th:checked="${rememberMe}">
+								   th:checked="${param.rememberMe}">
 							<label class="form-check-label" for="rememberMe">记住我</label>
 							<a href="forget.html" class="text-danger float-right">忘记密码?</a>
 						</div>
@@ -81,6 +81,7 @@
 	<script>
 		function refresh_kaptcha() {
 			var path = CONTEXT_PATH + "/kaptcha?p=" + Math.random();
+			console.log(path)
 			$("#kaptcha").attr("src", path);
 		}
 	</script>
