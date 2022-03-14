@@ -1,6 +1,7 @@
 package com.example.lvcheng.service;
 import com.example.lvcheng.dao.DiscussPostMapper;
 import com.example.lvcheng.entity.DiscussPost;
+import com.example.lvcheng.util.SensitiveFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,9 @@ public class DiscussPostService {
 
     @Autowired(required = false)
     private DiscussPostMapper discussPostMapper;
+
+    @Autowired
+    private SensitiveFilter sensitiveFilter;
 
     /**
      * 分页查询讨论帖信息
@@ -65,8 +69,8 @@ public class DiscussPostService {
         discussPost.setContent(HtmlUtils.htmlEscape(discussPost.getContent()));
 
         // 过滤敏感词
-//        discussPost.setTitle(sensitiveFilter.filter(discussPost.getTitle()));
-//        discussPost.setContent(sensitiveFilter.filter(discussPost.getContent()));
+        discussPost.setTitle(sensitiveFilter.filter(discussPost.getTitle()));
+        discussPost.setContent(sensitiveFilter.filter(discussPost.getContent()));
 
         return discussPostMapper.insertDiscussPost(discussPost);
     }
@@ -119,5 +123,7 @@ public class DiscussPostService {
     public int updateScore(int id, double score) {
         return discussPostMapper.updateScore(id, score);
     }
+
+
 
 }

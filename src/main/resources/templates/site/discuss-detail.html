@@ -49,11 +49,11 @@
 						<div class="text-muted mt-3">
 							发布于 <b th:text="${#dates.format(post.createTime, 'yyyy-MM-dd HH:mm:ss')}"></b>
 							<ul class="d-inline float-right">
-								<li class="d-inline ml-2">
-									<a href="javascript:;" th:onclick="|like(this, 1, ${post.id}, ${post.userId}, ${post.id});|" class="text-primary">
-										<b th:text="${likeStatus == 1 ? '已赞' : '赞'}"></b> <i th:text="${likeCount}"></i>
-									</a>
-								</li>
+<!--								<li class="d-inline ml-2">-->
+<!--									<a href="javascript:;" th:onclick="|like(this, 1, ${post.id}, ${post.userId}, ${post.id});|" class="text-primary">-->
+<!--										<b th:text="${likeStatus == 1 ? '已赞' : '赞'}"></b> <i th:text="${likeCount}"></i>-->
+<!--									</a>-->
+<!--								</li>-->
 								<li class="d-inline ml-2">|</li>
 								<li class="d-inline ml-2"><a href="#replyform" class="text-primary">回帖 <i th:text="${post.commentCount}"></i></a></li>
 							</ul>

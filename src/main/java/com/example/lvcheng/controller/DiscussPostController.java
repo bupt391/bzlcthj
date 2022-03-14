@@ -1,59 +1,58 @@
-//package com.example.lvcheng.controller;
-//
-//import com.example.lvcheng.entity.*;
-//
-//import com.example.lvcheng.service.DiscussPostService;
-//import com.example.lvcheng.service.UserService;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.beans.factory.annotation.Value;
-////import org.springframework.data.redis.core.RedisTemplate;
-//import org.springframework.stereotype.Controller;
-//import org.springframework.ui.Model;
-//import org.springframework.web.bind.annotation.*;
-//import org.springframework.web.multipart.MultipartFile;
-//import org.springframework.web.util.HtmlUtils;
-//
-//import java.io.File;
-//import java.util.*;
-//
-///**
-// * 帖子
-// */
-//@Controller
-//@RequestMapping("/discuss")
-//public class DiscussPostController implements CommunityConstant {
-//
-//    @Autowired
-//    private DiscussPostService discussPostService;
-////
-////    @Autowired
-////    private HostHolder hostHolder;
-//
-//    @Autowired
-//    private UserService userService;
-//
-//
-//
-//    // 网站域名
-//    @Value("${community.path.domain}")
-//    private String domain;
-//
-//    // 项目名(访问路径)
-//    @Value("${server.servlet.context-path}")
-//    private String contextPath;
-//
-//    // editorMd 图片上传地址
+package com.example.lvcheng.controller;
+
+import com.example.lvcheng.entity.DiscussPost;
+import com.example.lvcheng.entity.Page;
+import com.example.lvcheng.entity.User;
+import com.example.lvcheng.service.DiscussPostService;
+import com.example.lvcheng.service.UserService;
+import com.example.lvcheng.util.HostHolder;
+import com.example.lvcheng.util.LvchengUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Date;
+
+/**
+ * 帖子
+ */
+@Controller
+@RequestMapping("/discuss")
+public class DiscussPostController{
+
+    @Autowired
+    private DiscussPostService discussPostService;
+
+    @Autowired
+    private HostHolder hostHolder;
+
+    @Autowired
+    private UserService userService;
+
+
+    // 网站域名
+    @Value("${community.path.domain}")
+    private String domain;
+
+    // 项目名(访问路径)
+    @Value("${server.servlet.context-path}")
+    private String contextPath;
+
+
+    //    // editorMd 图片上传地址
 //    @Value("${community.path.editormdUploadPath}")
 //    private String editormdUploadPath;
 //
-//    /**
-//     * 进入帖子发布页
-//     * @return
-//     */
-//    @GetMapping("/publish")
-//    public String getPublishPage () {
-//        return "/site/discuss-publish";
-//    }
+    /**
+     * 进入帖子发布页
+     * @return
+     */
+    @GetMapping("/publish")
+    public String getPublishPage () {
+        return "/site/discuss-publish";
+    }
 //
 //    /**
 //     * markdown 图片上传
@@ -90,28 +89,28 @@
 //        return CommunityUtil.getEditorMdJSONString(1, "上传成功", url);
 //    }
 //
-//    /**
-//     * 添加帖子（发帖）
-//     * @param title
-//     * @param content
-//     * @return
-//     */
-//    @PostMapping("/add")
-//    @ResponseBody
-//    public String addDiscussPost(String title, String content) {
-//        User user = hostHolder.getUser();
-//        if (user == null) {
-//            return CommunityUtil.getJSONString(403, "您还未登录");
-//        }
-//
-//        DiscussPost discussPost = new DiscussPost();
-//        discussPost.setUserId(user.getId());
-//        discussPost.setTitle(title);
-//        discussPost.setContent(content);
-//        discussPost.setCreateTime(new Date());
-//
-//        discussPostService.addDiscussPost(discussPost);
-//
+    /**
+     * 添加帖子（发帖）
+     * @param title
+     * @param content
+     * @return
+     */
+    @PostMapping("/add")
+    @ResponseBody
+    public String addDiscussPost(String title, String content) {
+        User user = hostHolder.getUser();
+        if (user == null) {
+            return LvchengUtil.getJSONString(403, "您还未登录");
+        }
+
+        DiscussPost discussPost = new DiscussPost();
+        discussPost.setUserId(user.getId());
+        discussPost.setTitle(title);
+        discussPost.setContent(content);
+        discussPost.setCreateTime(new Date());
+
+        discussPostService.addDiscussPost(discussPost);
+
 //        // 触发发帖事件，通过消息队列将其存入 Elasticsearch 服务器
 //        Event event = new Event()
 //                .setTopic(TOPIC_PUBLISH)
@@ -123,26 +122,29 @@
 //        // 计算帖子分数
 //        String redisKey = RedisKeyUtil.getPostScoreKey();
 //        redisTemplate.opsForSet().add(redisKey, discussPost.getId());
-//
-//        return CommunityUtil.getJSONString(0, "发布成功");
-//    }
-//
+
+        return LvchengUtil.getJSONString(0, "发布成功");
+    }
 //    /**
 //     * 进入帖子详情页
 //     * @param discussPostId
 //     * @param model
 //     * @return
 //     */
-//    @GetMapping("/detail/{discussPostId}")
-//    public String getDiscussPost(@PathVariable("discussPostId") int discussPostId, Model model, Page page) {
-//        // 帖子
-//        DiscussPost discussPost = discussPostService.findDiscussPostById(discussPostId);
+    @GetMapping("/detail/{discussPostId}")
+    public String getDiscussPost(@PathVariable("discussPostId") int discussPostId, Model model, Page page) {
+//
+
+        page.setRows(discussPostService.findDiscussPostRows(0));
+        page.setPath("index");
+        // 帖子
+        DiscussPost discussPost = discussPostService.findDiscussPostById(discussPostId);
 //        String content = HtmlUtils.htmlUnescape(discussPost.getContent()); // 内容反转义，不然 markDown 格式无法显示
 //        discussPost.setContent(content);
-//        model.addAttribute("post", discussPost);
+        model.addAttribute("post", discussPost);
 //        // 作者
-//        User user = userService.findUserById(discussPost.getUserId());
-//        model.addAttribute("user", user);
+        User user = userService.findUserById(discussPost.getUserId());
+        model.addAttribute("user", user);
 //        // 点赞数量
 //        long likeCount = likeService.findEntityLikeCount(ENTITY_TYPE_POST, discussPostId);
 //        model.addAttribute("likeCount", likeCount);
@@ -207,9 +209,9 @@
 //
 //        model.addAttribute("comments", commentVoList);
 //
-//        return "/site/discuss-detail";
+        return "/site/discuss-detail";
 //
-//    }
+    }
 //
 //    /**
 //     * 置顶帖子
@@ -281,4 +283,4 @@
 //    }
 //
 //
-//}
+}
