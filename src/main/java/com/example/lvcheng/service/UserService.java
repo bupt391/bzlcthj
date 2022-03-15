@@ -194,6 +194,15 @@ public class UserService implements LvchengConstant {
         return userMapper.updateHeader(userId,headerUrl);
     }
 
+    /**
+     * 根据 username 查询用户
+     * @param username
+     * @return
+     */
+    public User findUserByName(String username) {
+        return userMapper.selectByName(username);
+    }
+
 
 
 }

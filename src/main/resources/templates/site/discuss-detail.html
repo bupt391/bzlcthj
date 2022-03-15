@@ -96,11 +96,11 @@
 							<div class="mt-4 text-muted font-size-12">
 								<span>发布于 <b th:utext="${#dates.format(cvo.comment.createTime, 'yyyy-MM-dd HH:mm:ss')}"></b></span>
 								<ul class="d-inline float-right">
-									<li class="d-inline ml-2">
-										<a href="javascript:;" th:onclick="|like(this, 2, ${cvo.comment.id}, ${cvo.comment.userId}, ${post.id});|" class="text-primary">
-											<b th:text="${cvo.likeStatus == 1 ? '已赞' : '赞'}"></b>(<i th:text="${cvo.likeCount}"></i>)
-										</a>
-									</li>
+<!--									<li class="d-inline ml-2">-->
+<!--										<a href="javascript:;" th:onclick="|like(this, 2, ${cvo.comment.id}, ${cvo.comment.userId}, ${post.id});|" class="text-primary">-->
+<!--											<b th:text="${cvo.likeStatus == 1 ? '已赞' : '赞'}"></b>(<i th:text="${cvo.likeCount}"></i>)-->
+<!--										</a>-->
+<!--									</li>-->
 									<li class="d-inline ml-2">|</li>
 									<li class="d-inline ml-2"><a href="#" class="text-primary">回复(<i th:text="${cvo.replyCount}"></i>)</a></li>
 								</ul>

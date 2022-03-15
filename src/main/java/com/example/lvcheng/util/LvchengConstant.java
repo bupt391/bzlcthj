@@ -16,15 +16,15 @@ public interface LvchengConstant {
     // 记住我状态下的凭证超时时间 (100天)
     int REMEMBER_EXPIRED_SECONDS = 3600 * 24 * 100;
 //
-//    // 实体类型：帖子
-//    int ENTITY_TYPE_POST = 1;
+    // 实体类型：帖子
+    int ENTITY_TYPE_POST = 1;
+
+    // 实体类型：评论
+    int ENTITY_TYPE_COMMENT = 2;
 //
-//    // 实体类型：评论
-//    int ENTITY_TYPE_COMMENT = 2;
-//
-//    // 实体类型：人
-//    int ENTITY_TYPE_USER = 3;
-//
+    // 实体类型：人
+    int ENTITY_TYPE_USER = 3;
+
 //    // Kafka 主题：评论
 //    String TOPIC_COMMNET = "comment";
 //
