@@ -4,10 +4,13 @@ import com.example.lvcheng.entity.DiscussPost;
 import com.example.lvcheng.entity.Page;
 import com.example.lvcheng.entity.User;
 import com.example.lvcheng.service.DiscussPostService;
+import com.example.lvcheng.service.LikeService;
 import com.example.lvcheng.service.UserService;
+import com.example.lvcheng.util.LvchengConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -17,13 +20,16 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-public class HomeController {
+public class HomeController implements LvchengConstant{
 
     @Autowired
     private DiscussPostService discussPostService;
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private LikeService likeService;
 
     @RequestMapping(path = "/index", method = RequestMethod.GET)
     public String getIndexPage(Model model, Page page){
@@ -37,11 +43,25 @@ public class HomeController {
                 map.put("post", post);
                 User user =  userService.findUserById(post.getUserId());
                 map.put("user", user);
+
+                long likeCount = likeService.findEntityLikeCount(ENTITY_TYPE_POST,post.getId());
+                map.put("likeCount", likeCount);
                 discussposts.add(map);
             }
         }
         model.addAttribute("discussPosts", discussposts);
         return "index";
     }
+
+    /**
+     * 进入 500 错误界面
+     * @return
+     */
+    @GetMapping("/error")
+    public String getErrorPage() {
+        return "/error/500";
+    }
+
+
 
 }

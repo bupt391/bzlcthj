@@ -6,9 +6,9 @@
 </head>
 <body>
     <div>
-        <li class="media pb-3 pt-3 mb-3 border-bottom" th:each="map:${discussPosts}">
-            <div th:text="${map.user.id}">
-
+<!--        <li class="media pb-3 pt-3 mb-3 border-bottom" th:each="map:${discussPosts}">-->
+        <li class="media pb-3 pt-3 mb-3 border-bottom position-relative" th:each="map:${conversations}">
+            <div th:text="${map.target.id}">
             </div>
         </li>
     </div>

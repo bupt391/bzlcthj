@@ -2,8 +2,10 @@ package com.example.lvcheng.dao;
 
 import com.example.lvcheng.entity.LoginTicket;
 import org.apache.ibatis.annotations.*;
+import org.springframework.stereotype.Repository;
 
 @Mapper
+@Repository
 public interface LoginTicketMapper {
 
     @Insert({

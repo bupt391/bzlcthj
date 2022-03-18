@@ -6,6 +6,7 @@ import com.example.lvcheng.entity.Page;
 import com.example.lvcheng.entity.User;
 import com.example.lvcheng.service.CommentService;
 import com.example.lvcheng.service.DiscussPostService;
+import com.example.lvcheng.service.LikeService;
 import com.example.lvcheng.service.UserService;
 import com.example.lvcheng.util.HostHolder;
 import com.example.lvcheng.util.LvchengConstant;
@@ -36,6 +37,9 @@ public class DiscussPostController implements LvchengConstant {
 
     @Autowired
     private CommentService commentService;
+
+    @Autowired
+    private LikeService likeService;
 
     // 网站域名
     @Value("${community.path.domain}")
@@ -153,13 +157,13 @@ public class DiscussPostController implements LvchengConstant {
         System.out.println(user.toString());
         model.addAttribute("user", user);
 //        // 点赞数量
-//        long likeCount = likeService.findEntityLikeCount(ENTITY_TYPE_POST, discussPostId);
-//        model.addAttribute("likeCount", likeCount);
+        long likeCount = likeService.findEntityLikeCount(ENTITY_TYPE_POST, discussPostId);
+        model.addAttribute("likeCount", likeCount);
 //        // 当前登录用户的点赞状态
-//        int likeStatus = hostHolder.getUser() == null ? 0 :
-//                likeService.findEntityLikeStatus(hostHolder.getUser().getId(), ENTITY_TYPE_POST, discussPostId);
-//        model.addAttribute("likeStatus", likeStatus);
-//
+        int likeStatus = hostHolder.getUser() == null ? 0 :
+                likeService.findEntityLikeStatus(hostHolder.getUser().getId(), ENTITY_TYPE_POST, discussPostId);
+        model.addAttribute("likeStatus", likeStatus);
+
         // 评论分页信息
         page.setLimit(5);
         page.setPath("/discuss/detail/" + discussPostId);
@@ -177,11 +181,11 @@ public class DiscussPostController implements LvchengConstant {
                 Map<String, Object> commentVo = new HashMap<>();
                 commentVo.put("comment", comment); // 评论
                 commentVo.put("user", userService.findUserById(comment.getUserId())); // 发布评论的作者
-//                likeCount = likeService.findEntityLikeCount(ENTITY_TYPE_COMMENT, comment.getId()); // 该评论点赞数量
-//                commentVo.put("likeCount", likeCount);
-//                likeStatus = hostHolder.getUser() == null ? 0 : likeService.findEntityLikeStatus(
-//                        hostHolder.getUser().getId(), ENTITY_TYPE_COMMENT, comment.getId()); // 当前登录用户对该评论的点赞状态
-//                commentVo.put("likeStatus", likeStatus);
+                likeCount = likeService.findEntityLikeCount(ENTITY_TYPE_COMMENT, comment.getId()); // 该评论点赞数量
+                commentVo.put("likeCount", likeCount);
+                likeStatus = hostHolder.getUser() == null ? 0 : likeService.findEntityLikeStatus(
+                        hostHolder.getUser().getId(), ENTITY_TYPE_COMMENT, comment.getId()); // 当前登录用户对该评论的点赞状态
+                commentVo.put("likeStatus", likeStatus);
 //
 //
 //                // 存储每个评论对应的回复（不做分页）
@@ -195,11 +199,11 @@ public class DiscussPostController implements LvchengConstant {
                         replyVo.put("user", userService.findUserById(reply.getUserId())); // 发布该回复的作者
                         User target = reply.getTargetId() == 0 ? null : userService.findUserById(reply.getTargetId());
                         replyVo.put("target", target); // 该回复的目标用户
-//                        likeCount = likeService.findEntityLikeCount(ENTITY_TYPE_COMMENT, reply.getId());
-//                        replyVo.put("likeCount", likeCount); // 该回复的点赞数量
-//                        likeStatus = hostHolder.getUser() == null ? 0 : likeService.findEntityLikeStatus(
-//                                hostHolder.getUser().getId(), ENTITY_TYPE_COMMENT, reply.getId());
-//                        replyVo.put("likeStatus", likeStatus); // 当前登录用户的点赞状态
+                        likeCount = likeService.findEntityLikeCount(ENTITY_TYPE_COMMENT, reply.getId());
+                        replyVo.put("likeCount", likeCount); // 该回复的点赞数量
+                        likeStatus = hostHolder.getUser() == null ? 0 : likeService.findEntityLikeStatus(
+                                hostHolder.getUser().getId(), ENTITY_TYPE_COMMENT, reply.getId());
+                        replyVo.put("likeStatus", likeStatus); // 当前登录用户的点赞状态
 //
                         replyVoList.add(replyVo);
                     }

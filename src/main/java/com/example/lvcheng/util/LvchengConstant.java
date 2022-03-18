@@ -25,33 +25,33 @@ public interface LvchengConstant {
     // 实体类型：人
     int ENTITY_TYPE_USER = 3;
 
-//    // Kafka 主题：评论
-//    String TOPIC_COMMNET = "comment";
+    // Kafka 主题：评论
+    String TOPIC_COMMNET = "comment";
+
+    // Kafka 主题：点赞
+    String TOPIC_LIKE = "like";
+
+    // Kafka 主题：关注
+    String TOPIC_FOLLOW = "follow";
 //
-//    // Kafka 主题：点赞
-//    String TOPIC_LIKE = "like";
+    // Kafka 主题：发帖
+    String TOPIC_PUBLISH = "publish";
+
+    // Kafka 主题：删帖
+    String TOPIC_DELETE = "delete";
+
+    // Kafka 主题：分享
+    String TOPIC_SHARE = "share";
 //
-//    // Kafka 主题：关注
-//    String TOPIC_FOLLOW = "follow";
+    // 系统用户的 id
+    int SYSTEM_USER_ID = 1;
 //
-//    // Kafka 主题：发帖
-//    String TOPIC_PUBLISH = "publish";
-//
-//    // Kafka 主题：删帖
-//    String TOPIC_DELETE = "delete";
-//
-//    // Kafka 主题：分享
-//    String TOPIC_SHARE = "share";
-//
-//    // 系统用户的 id
-//    int SYSTEM_USER_ID = 1;
-//
-//    // 权限：普通用户
-//    String AUTHORITY_USER = "user";
-//
-//    // 权限：管理员
-//    String AUTHORITY_ADMIN = "admin";
-//
-//    // 权限：版主
-//    String AUTHORITY_MODERATOR = "moderator";
+    // 权限：普通用户
+    String AUTHORITY_USER = "user";
+
+    // 权限：管理员
+    String AUTHORITY_ADMIN = "admin";
+
+    // 权限：版主
+    String AUTHORITY_MODERATOR = "moderator";
 }

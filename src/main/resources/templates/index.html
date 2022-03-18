@@ -7,7 +7,7 @@
 	<link rel="stylesheet" type="text/css" th:href="@{/css/bootstrap.min.css}" />
 	<link rel="stylesheet" type="text/css" th:href="@{/css/global.css}" />
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
-	<title>Echo - 首页</title>
+	<title>绿城论坛 - 首页</title>
 </head>
 <body>	
 	<div class="nk-container">
@@ -151,11 +151,11 @@
 							</h6>
 							<div class="text-muted font-size-12">
 								<u class="mr-3" th:utext="${map.user.username}"></u> 发布于 <b th:text="${#dates.format(map.post.createTime,'yyyy-MM-dd HH:mm:ss')}"></b>
-<!--								<ul class="d-inline float-right">-->
-<!--									<li class="d-inline ml-2">赞 <span th:text="${map.likeCount}"></span></li>-->
-<!--									<li class="d-inline ml-2">|</li>-->
-<!--									<li class="d-inline ml-2">回帖 <span th:text="${map.post.commentCount}"></span></li>-->
-<!--								</ul>-->
+								<ul class="d-inline float-right">
+									<li class="d-inline ml-2">赞 <span th:text="${map.likeCount}"></span></li>
+									<li class="d-inline ml-2">|</li>
+									<li class="d-inline ml-2">回帖 <span th:text="${map.post.commentCount}"></span></li>
+								</ul>
 							</div>
 						</div>
 					</li>

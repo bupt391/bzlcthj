@@ -1,7 +1,7 @@
 package com.example.lvcheng.dao;
 
 
-//import com.greate.community.entity.User;
+//import com.example.lvcheng.entity.User;
 import com.example.lvcheng.entity.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;

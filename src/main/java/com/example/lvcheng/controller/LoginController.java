@@ -3,12 +3,15 @@ package com.example.lvcheng.controller;
 import com.example.lvcheng.entity.User;
 import com.example.lvcheng.service.UserService;
 import com.example.lvcheng.util.LvchengConstant;
+import com.example.lvcheng.util.LvchengUtil;
+import com.example.lvcheng.util.RedisKeyUtil;
 import com.google.code.kaptcha.Producer;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +24,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 
 @Controller
@@ -33,6 +37,9 @@ public class LoginController implements LvchengConstant {
 
     @Autowired
     private Producer kaptchaProducer;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @Value("${server.servlet.context-path}")
     private String contextPath;
@@ -70,7 +77,10 @@ public class LoginController implements LvchengConstant {
 
     @RequestMapping(path = "/activition/{UserId}/{code}", method = RequestMethod.GET)
     public String activation(Model model, @PathVariable("userId") int userId, @PathVariable("code") String code){
+
+        System.out.println(code);
         int result = userService.activition(userId,code);
+        System.out.println(result);
         if (result == ACTIVATION_SUCCESS) {
             model.addAttribute("msg", "激活成功, 您的账号已经可以正常使用!");
             model.addAttribute("target", "/login");
@@ -95,7 +105,17 @@ public class LoginController implements LvchengConstant {
         String text = kaptchaProducer.createText();
         BufferedImage image = kaptchaProducer.createImage(text);
         //將驗證碼存入Session
-        session.setAttribute("kaptcha", text);
+//        session.setAttribute("kaptcha", text);
+
+        // 验证码的归属者
+        String kaptchaOwner = LvchengUtil.generateUUID();
+        Cookie cookie = new Cookie("kaptchaOwner", kaptchaOwner);
+        cookie.setMaxAge(60);
+        cookie.setPath(contextPath);
+        response.addCookie(cookie);
+        // 将验证码存入 redis
+        String redisKey = RedisKeyUtil.getKaptchaKey(kaptchaOwner);
+        redisTemplate.opsForValue().set(redisKey, text, 60, TimeUnit.SECONDS);
 
         //將圖片輸出給瀏覽器
         response.setContentType("image/png'");
@@ -123,10 +143,14 @@ public class LoginController implements LvchengConstant {
                         String code,
                         boolean rememberMe,
                         Model model,
-                        HttpSession session,
-                        HttpServletResponse response) {
+                        HttpServletResponse response,
+                        @CookieValue("kaptchaOwner") String kaptchaOwner) {
         // 检查验证码
-        String kaptcha = (String) session.getAttribute("kaptcha");
+        String kaptcha = null;
+        if (StringUtils.isNotBlank(kaptchaOwner)) {
+            String redisKey = RedisKeyUtil.getKaptchaKey(kaptchaOwner);
+            kaptcha = (String) redisTemplate.opsForValue().get(redisKey);
+        }
         if (StringUtils.isBlank(kaptcha) || StringUtils.isBlank(code) || !kaptcha.equalsIgnoreCase(code)) {
             model.addAttribute("codeMsg", "验证码错误");
             return "/site/login";
@@ -158,6 +182,9 @@ public class LoginController implements LvchengConstant {
         userService.logout(ticket);
         return "redirect:/login";
     }
+
+
+
 
 
 

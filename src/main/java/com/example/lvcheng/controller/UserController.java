@@ -3,10 +3,14 @@ package com.example.lvcheng.controller;
 
 import com.example.lvcheng.annotation.LoginRequired;
 import com.example.lvcheng.entity.User;
+import com.example.lvcheng.service.FollowService;
+import com.example.lvcheng.service.LikeService;
 import com.example.lvcheng.service.UserService;
 import com.example.lvcheng.util.HostHolder;
+import com.example.lvcheng.util.LvchengConstant;
 import com.example.lvcheng.util.LvchengUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.coyote.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +30,7 @@ import java.io.OutputStream;
 
 @Controller
 @RequestMapping("/user")
-public class UserController{
+public class UserController implements LvchengConstant{
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Value("${lvcheng.path.upload}")
@@ -43,6 +47,12 @@ public class UserController{
 
     @Autowired
     private HostHolder hostHolder;
+
+    @Autowired
+    private LikeService likeService;
+
+    @Autowired
+    private FollowService followService;
 
     @LoginRequired
     @RequestMapping(path = "/setting", method = RequestMethod.GET)
@@ -107,6 +117,34 @@ public class UserController{
     }
 
 
+    @RequestMapping(path = "/profile/{userId}", method = RequestMethod.GET)
+    public String getProfilePage(@PathVariable("userId") int userId, Model model){
+        User user = userService.findUserById(userId);
+        if(user == null){
+            throw new RuntimeException("该用户不存在1");
+        }
+            model.addAttribute("user", user);
+            int likeCount = likeService.findUserLikeCount(userId);
+            model.addAttribute("likeCount", likeCount);
+
+            long followeeCount = followService.findFolloweeCount(userId, ENTITY_TYPE_USER);
+            model.addAttribute("followeeCount", followeeCount);
+
+            long followerCount = followService.findFollowerCount(ENTITY_TYPE_USER, userId);
+            model.addAttribute("followerCount" , followerCount);
+
+            // 当前登录用户是否已关注该用户
+            boolean hasFollowed = false;
+            if (hostHolder.getUser() != null) {
+                hasFollowed = followService.hasFollowed(hostHolder.getUser().getId(), ENTITY_TYPE_USER, userId);
+            }
+            model.addAttribute("hasFollowed", hasFollowed);
+            model.addAttribute("tab", "profile"); // 该字段用于指示标签栏高亮
+
+            return "/site/profile";
+
+
+    }
 
 
 }

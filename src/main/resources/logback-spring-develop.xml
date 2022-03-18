@@ -81,7 +81,7 @@
         </filter>
     </appender>
 
-    <logger name="com.greate.community" level="debug"/>
+    <logger name="com.example.lvcheng" level="debug"/>
 
     <root level="info">
         <appender-ref ref="FILE_ERROR"/>

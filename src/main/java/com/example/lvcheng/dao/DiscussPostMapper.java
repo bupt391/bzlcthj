@@ -1,6 +1,6 @@
 package com.example.lvcheng.dao;
 
-//import com.greate.community.entity.DiscussPost;
+//import com.example.lvcheng.entity.DiscussPost;
 
 import com.example.lvcheng.entity.DiscussPost;
 import org.apache.ibatis.annotations.Mapper;

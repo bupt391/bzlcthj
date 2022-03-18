@@ -7,9 +7,11 @@ import com.example.lvcheng.entity.User;
 import com.example.lvcheng.util.LvchengConstant;
 import com.example.lvcheng.util.LvchengUtil;
 import com.example.lvcheng.util.MailClient;
+import com.example.lvcheng.util.RedisKeyUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -18,6 +20,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 
 @Service
@@ -25,8 +28,10 @@ public class UserService implements LvchengConstant {
     @Autowired
     private UserMapper userMapper;
 
-    @Autowired
-    private LoginTicketMapper loginTicketMapper;
+//    @Autowired
+//    private LoginTicketMapper loginTicketMapper;
+
+
 
     // 网站域名
     @Value("${community.path.domain}")
@@ -42,8 +47,15 @@ public class UserService implements LvchengConstant {
     @Autowired
     private MailClient mailClient;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     public User findUserById(int id){
-        return userMapper.selectById(id);
+        User user = getCache(id);
+        if(user == null){
+            user = initCache(id);
+        }
+        return user;
     }
 
     /**
@@ -109,12 +121,13 @@ public class UserService implements LvchengConstant {
         return map;
     }
 
-    public int activition(int UserId, String code){
-        User user = userMapper.selectById(UserId);
+    public int activition(int userId, String code){
+        User user = userMapper.selectById(userId);
         if(user.getStatus() == 1){
+            clearCache(userId);
             return ACTIVATION_REPEAT;
         }else if(user.getActivationCode().equals(code)){
-            userMapper.updateStatus(UserId,1);
+            userMapper.updateStatus(userId,1);
             return ACTIVATION_SUCCESS;
         }else{
             return ACTIVATION_FAILURE;
@@ -169,7 +182,9 @@ public class UserService implements LvchengConstant {
         loginTicket.setStatus(0); // 设置凭证状态为有效（当用户登出的时候，设置凭证状态为无效）
         loginTicket.setExpired(new Date(System.currentTimeMillis() + expiredSeconds * 1000)); // 设置凭证到期时间
 
-        loginTicketMapper.insertLoginTicket(loginTicket);
+        String redisKey = RedisKeyUtil.getTicketKey(loginTicket.getTicket());
+        redisTemplate.opsForValue().set(redisKey,loginTicket);
+
 //        // 将登录凭证存入 redis
 //        String redisKey = RedisKeyUtil.getTicketKey(loginTicket.getTicket());
 //        redisTemplate.opsForValue().set(redisKey, loginTicket);
@@ -180,19 +195,25 @@ public class UserService implements LvchengConstant {
     }
 
     public void logout(String ticket){
-        loginTicketMapper.updateStatus(ticket,1);
+        String redisKey = RedisKeyUtil.getTicketKey(ticket);
+        LoginTicket loginTicket = (LoginTicket) redisTemplate.opsForValue().get(redisKey);
+        loginTicket.setStatus(1);
+        redisTemplate.opsForValue().set(redisKey,loginTicket);
     }
 
     /*
     * 通过ticket查找用户
     * */
     public LoginTicket findLoginTicket(String ticket){
-        return loginTicketMapper.selectByTicket(ticket);
+        String redisKey = RedisKeyUtil.getTicketKey(ticket);
+        return (LoginTicket) redisTemplate.opsForValue().get(redisKey);
     }
 
     public int updateHeader(int userId, String headerUrl){
-        return userMapper.updateHeader(userId,headerUrl);
-    }
+        int rows = userMapper.updateHeader(userId,headerUrl);
+        clearCache(userId);
+        return rows;
+     }
 
     /**
      * 根据 username 查询用户
@@ -203,6 +224,38 @@ public class UserService implements LvchengConstant {
         return userMapper.selectByName(username);
     }
 
+    /**
+     * 优先从缓存中取值
+     * @param userId
+     * @return
+     */
+    private User getCache(int userId) {
+        String redisKey = RedisKeyUtil.getUserKey(userId);
+        return (User) redisTemplate.opsForValue().get(redisKey);
+    }
+
+
+    /**
+     * 缓存中没有该用户信息时，则将其存入缓存
+     * @param userId
+     * @return
+     */
+    private User initCache(int userId) {
+        User user = userMapper.selectById(userId);
+        String redisKey = RedisKeyUtil.getUserKey(userId);
+        redisTemplate.opsForValue().set(redisKey, user, 3600, TimeUnit.SECONDS);
+        return user;
+    }
+
+
+    /**
+     * 用户信息变更时清除对应缓存数据
+     * @param userId
+     */
+    private void clearCache(int userId) {
+        String redisKey = RedisKeyUtil.getUserKey(userId);
+        redisTemplate.delete(redisKey);
+    }
 
 
 }
